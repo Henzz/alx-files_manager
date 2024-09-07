@@ -1,17 +1,20 @@
 // utils/redis.js
+import { promisify } from "util";
+import { createClient } from "redis";
 
-const { createClient } = require('redis');
-
+/**
+ * Represents a Redis client.
+ */
 class RedisClient {
   constructor() {
     this.client = createClient();
 
-    this.client.on('error', (err) => {
-      console.error('Error connecting to Redis:', err);
+    this.client.on("error", (err) => {
+      console.error("Error connecting to Redis:", err);
     });
 
     this.client.connect().catch((err) => {
-      console.error('Failed to connect to Redis:', err);
+      console.error("Failed to connect to Redis:", err);
     });
   }
 
@@ -20,7 +23,7 @@ class RedisClient {
       await this.client.ping();
       return true;
     } catch (err) {
-      console.error('Error checking Redis status:', err);
+      console.error("Error checking Redis status:", err);
       return false;
     }
   }
@@ -47,11 +50,10 @@ class RedisClient {
     try {
       await this.client.del(key);
     } catch (error) {
-      console.error('Error deleting key: ', error);
+      console.error("Error deleting key: ", error);
     }
   }
 }
 
-// Create and export an instance of RedisClient
-const redisClient = new RedisClient();
-module.exports = redisClient;
+export const redisClient = new RedisClient();
+export default redisClient;
