@@ -1,4 +1,3 @@
-// utils/redis.js
 import { promisify } from 'util';
 import { createClient } from 'redis';
 
@@ -11,17 +10,12 @@ class RedisClient {
    */
   constructor() {
     this.client = createClient();
-    this.isClientConnected = false;
+    this.isClientConnected = true;
     this.client.on('error', (err) => {
+      console.error('Redis client failed to connect:', err.message || err.toString());
       this.isClientConnected = false;
-      console.error('Error connecting to Redis:', err);
     });
-
-    this.client.connect().catch((err) => {
-      console.error('Failed to connect to Redis:', err);
-    });
-
-    this.client.on('connect', (err) => {
+    this.client.on('connect', () => {
       this.isClientConnected = true;
     });
   }
@@ -30,7 +24,7 @@ class RedisClient {
    * Checks if this client's connection to the Redis server is active.
    * @returns {boolean}
    */
-  async isAlive() {
+  isAlive() {
     return this.isClientConnected;
   }
 
@@ -51,7 +45,8 @@ class RedisClient {
    * @returns {Promise<void>}
    */
   async set(key, value, duration) {
-    await promisify(this.client.SETEX).bind(this.client)(key, duration, value);
+    await promisify(this.client.SETEX)
+      .bind(this.client)(key, duration, value);
   }
 
   /**
